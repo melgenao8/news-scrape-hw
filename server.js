@@ -4,7 +4,8 @@ var mongoose = require("mongoose");
 var mongojs = require("mongojs");
 var axios = require("axios");
 var cheerio = require("cheerio");
-
+var scrapedNYtimes = require("./routes/scrape");
+var PORT = process.env.PORT || 3000;
 
 // Initialize Express
 var app = express();
@@ -21,12 +22,12 @@ db.on("error", function (error) {
 // Serve up static assets (usually on heroku)
 if (process.env.NODE_ENV === "production") {
     app.use(express.static("client/build"));
-  }
-  // Add routes, both API and view
-  app.use(routes);
-  
-  // Connect to the Mongo DB
-  mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/##");
+}
+// Add routes, both API and view
+// app.use(routes);
+
+// Connect to the Mongo DB
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/##");
 
 
 // Define middleware here
@@ -55,10 +56,81 @@ app.get("/all", function (req, res) {
     });
 });
 
-//scrapped data
-PORT
+// Retrieve data from the db
+app.get("/scrape", function (req, res) {
+    // refer to scrape.js
+    axios.get("http://www.nytimes.com").then(function (response) {
+        var $ = cheerio.load(response.data);
 
-var PORT = process.env.PORT || 3000;
+        console.log("\n***********************************\n" +
+            "Grabbing the latest articles" +
+            "from New York Times" +
+            "\n***********************************\n");
+
+
+        // Save scrapped articles in this empty array
+        // var articles = [];
+
+
+        $(".css-8atqhb").each(function (i, element) {
+
+
+            // ============================================
+            // Headline - the title of the article
+            // Summary - a short summary of the article
+            // URL - the url to the original article
+
+            //  HEADLINE
+            var title = $(element).find("h2").text();
+
+            // Grab the URL of the article
+            var link = $(element).find("a").attr("href");
+
+            // Grab the summary of the article
+            var sum = $(element).find("p").text();
+
+
+            console.log("Title:" + title, "Link:" + link, "Sum:" + sum);
+            // If this found element had both a title and a link
+            if (title && link && sum) {
+                // Insert the data in the scrapedData db
+                db.NYTscrapedData.insert({
+                    title: title,
+                    link: link,
+                    sum: sum
+                },
+                    function (err, inserted) {
+                        if (err) {
+                            // Log the error if one is encountered during the query
+                            console.log(err);
+                        }
+                        else {
+                            // Otherwise, log the inserted data
+                            console.log(inserted);
+                        }
+                    });
+            }
+        });
+        db.NYTscrapedData.find({}, function (error, found) {
+            // Throw any errors to the console
+            if (error) {
+                console.log(error);
+            }
+            // If there are no errors, send the data to the browser as json
+            else {
+                res.json(found);
+            }
+        });
+
+        // res.json({ "status": "Successful 200" });
+    });
+});
+
+
+//scrapped data
+
+
+
 
 app.listen(PORT, function () {
     console.log("App listening http://localhost:" + PORT);
