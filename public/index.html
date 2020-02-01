@@ -14,18 +14,37 @@
 </head>
 
 <body>
+
     <ul class="nav justify-content-center text-white bg-dark">
         <h2 class="text-center p1">NYT Mongoose Scraper</h2>
     </ul>
 
     <div class="container justify-content-center">
-
-        <button type="button" class="btn btn-primary">Scrape New Articles</button>
-        <button type="button" class="btn btn-info">Saved Articles</button>
-        <button type="button" class="btn btn-danger">Clear Articles</button>
-
+        <button type="button" class="btn btn-primary" id="scrapeNewButton">Scrape New Articles</button>
+        <button type="button" class="btn btn-info" id="savedButton">Saved Articles</button>
+        <button type="button" class="btn btn-danger" id="clearArticlesButton">Clear Articles</button>
     </div>
 
+    <table id="results">
+        <thead>
+            <tr>
+                <th id="headline">Name</th>
+                <th id="url">Num Legs</th>
+                <th id="summary">Class</th>
+
+                <!-- <div id="allArticles">All Articles here</div>
+            <div id="savedArticles">Article Link</div>
+            <div id="clearArticles">Artice Summary</div>
+             -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Results from DB here -->
+        </tbody>
+    </table>
+
+
+    <script src="app.js"></script>
 </body>
 
 </html>

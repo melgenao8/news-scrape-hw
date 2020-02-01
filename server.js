@@ -18,6 +18,20 @@ var db = mongojs(databaseUrl, collections);
 db.on("error", function (error) {
     console.log("Database Error:", error);
 });
+// Serve up static assets (usually on heroku)
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static("client/build"));
+  }
+  // Add routes, both API and view
+  app.use(routes);
+  
+  // Connect to the Mongo DB
+  mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/##");
+
+
+// Define middleware here
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 
 // ROUTES
@@ -42,7 +56,7 @@ app.get("/all", function (req, res) {
 });
 
 //scrapped data
-// PORT
+PORT
 
 var PORT = process.env.PORT || 3000;
 
